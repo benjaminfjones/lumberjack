@@ -1,8 +1,11 @@
 package lumberjack;
 
-import java.util.function.Predicate;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import lumberjack.Coord3;
 
@@ -77,6 +80,10 @@ class Grid implements Iterable<Coord3> {
                0 <= p.getY() && p.getY() < this.getWidth();
     }
 
+    public Predicate<Coord> onGridPredicate() {
+        return this::onGrid;
+    }
+
     public String toString() {
         int maxWidth = 0;
         for (int i = 0; i < this.grid.length; i++) {
@@ -106,6 +113,43 @@ class Grid implements Iterable<Coord3> {
         }
 
         return grid[p.getX()][p.getY()];
+    }
+
+    /**
+     * Compute the minimum Manhatten distance required to move from `from` to
+     * `to`, while avoiding positions that fail the given predicate.
+     *
+     * @param from starting grid position
+     * @param to ending grid position
+     * @param passable predicate indicating whether an arbitrary position is
+     * passable
+     *
+     * @return Return the minimum travel distance, or Optional.empty() if
+     * there is no path
+     */
+    public Optional<Integer> minDistance(Coord from, Coord to,
+                                         Predicate<Coord> passable) {
+        // unimplemented
+        return Optional.empty();
+    }
+
+    /**
+     * Return the set of neighboring grid positions that are passable
+     * according to the given predicate.
+     *
+     * @param p given position
+     * @param passable predicate indicating whether an arbitrary
+     * position/value (encoded as a Coord3) is passable
+     */
+    public Set<Coord> neighbors(Coord p, Predicate<Coord3> passable) {
+        Predicate<Coord> passableClosure = c -> {
+            Coord3 cWithValue = new Coord3(c.getX(), c.getY(), this.getValue(c));
+            return passable.test(cWithValue);
+        };
+        return p.cardinalNeighbors()
+            .stream()
+            .filter(this.onGridPredicate().and(passableClosure))
+            .collect(Collectors.toSet());
     }
 
     @Override

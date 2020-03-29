@@ -1,5 +1,9 @@
 package lumberjack;
 
+import java.util.HashSet;
+import java.util.Set;
+
+
 /**
  * Represents 2d grid location.
  */
@@ -44,5 +48,18 @@ class Coord {
     @Override
     public String toString() {
         return String.format("(%d, %d)", x, y);
+    }
+
+    /**
+     * Return the 4 coordinates within 1 Manhatten distance from the
+     * corrdinate.
+     */
+    public Set<Coord> cardinalNeighbors() {
+        Set<Coord> res = new HashSet<>();
+        res.add(new Coord(this.x+1, this.y));
+        res.add(new Coord(this.x-1, this.y));
+        res.add(new Coord(this.x, this.y+1));
+        res.add(new Coord(this.x, this.y-1));
+        return res;
     }
 }
