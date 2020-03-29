@@ -20,12 +20,12 @@ public class StateTest {
     @Test
     public void testNewState() {
         State s = new State(grid1, new Coord(0,0));
-        System.out.print(s.toString());
+        System.out.println(s.toString());
 
         System.out.println();
 
         s = new State(grid2, new Coord(1,1));
-        System.out.print(s.toString());
+        System.out.println(s.toString());
     }
 
     @Test
@@ -45,9 +45,17 @@ public class StateTest {
     @Test
     public void testGetHeight() {
         State s = new State(grid1, new Coord(0, 0));
-        for (int y = 0; y < s.getDepth(); y++) {
-            for (int x = 0; x < s.getWidth(); x++) {
-                assertEquals(s.getHeight(new Coord(x, y)), grid1[y][x]);
+        for (int x = 0; x < s.getDepth(); x++) {
+            for (int y = 0; y < s.getWidth(); y++) {
+                assertEquals(s.getHeight(new Coord(x, y)), grid1[x][y]);
+            }
+        }
+
+        // test non-square grid
+        s = new State(grid2, new Coord(0, 0));
+        for (int x = 0; x < s.getDepth(); x++) {
+            for (int y = 0; y < s.getWidth(); y++) {
+                assertEquals(s.getHeight(new Coord(x, y)), grid2[x][y]);
             }
         }
     }
@@ -58,7 +66,7 @@ public class StateTest {
         List<Coord> ts = s.nextTrees();
         assertEquals(ts.size(), 1);
         List<Coord> oracle = new ArrayList<Coord>();
-        oracle.add(new Coord(1, 0));
+        oracle.add(new Coord(0, 1));
         assertEquals("ts = " + ts, ts, oracle);
 
         s = new State(grid3, new Coord(0, 0));  // no trees

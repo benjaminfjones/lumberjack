@@ -7,7 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import lumberjack.Coord;
-import lumberjack.StateIterator;
+import lumberjack.Grid;
 
 
 /**
@@ -21,7 +21,7 @@ import lumberjack.StateIterator;
 class State implements Iterable<Coord3> {
 
     // 2d grid of integers
-    private int[][] grid;
+    private Grid grid;
 
     // lumberjack position
     private Coord pos;
@@ -30,85 +30,46 @@ class State implements Iterable<Coord3> {
      * Create a new state given a grid and a lumberjack position.
      *
      * The "rows" of the grid correspond to depth and the "columns" correspond
-     * to width. When x,y coordinates are used, y measures depth and x
+     * to width. When x,y coordinates are used, x measures depth and y
      * measures width. Thus coordinate (x,y) on the grid has height
-     * `grid[y][x]`.
+     * `grid[x][y]`.
      *
      * A copy of the grid is made.
      *
-     * @param grid a 2d array of integers, #rows > 0, #cols > 0
-     * @param p position of the lumberjack (assumed to be on the grid)
+     * @param grid an initial grid
+     * @param p position of the lumberjack (checked to be on the grid)
      */
     public State(int[][] grid, Coord p) {
-        int n = grid.length;
-        assert(n > 0);
-        int m = grid[0].length;
-        assert(m > 0);
 
-        this.grid = new int[n][m];
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < m; j++) {
-                if (grid[i][j] < -1) {
-                    throw new RuntimeException("invalid grid entry < -1");
-                }
-                this.grid[i][j] = grid[i][j];
-            }
-        }
+        // validate that grid entries have height >= -1
+        this.grid = new Grid(grid, h -> { return h >= -1; });
 
-        if (!(0 <= p.getX() && p.getX() < n && 0 <= p.getY() && p.getY() < m)) {
+        if (!this.grid.onGrid(p)) {
             throw new IndexOutOfBoundsException("lumberjack position is not on grid");
         }
         this.pos = p;
     }
 
+    @Override
     public String toString() {
-        int maxWidth = 0;
-        for (int i = 0; i < this.grid.length; i++) {
-            for (int j = 0; j < this.grid[0].length; j++) {
-                int entryWidth = String.format("%d", this.grid[i][j]).length();
-                if (entryWidth > maxWidth) {
-                    maxWidth = entryWidth;
-                }
-            }
-        }
-        assert(maxWidth > 0);
-
-        String res = "";
-        for (int i = 0; i < this.grid.length; i++) {
-            for (int j = 0; j < this.grid[0].length; j++) {
-                if (pos.getX() == j && pos.getY() == i) {
-                    res += String.format(" %" + maxWidth + "s", "X");
-                } else {
-                    res += String.format(" %" + maxWidth + "d", this.grid[i][j]);
-                }
-            }
-            res += "\n";
-        }
-
-        return res;
+        return this.grid.toString() + "pos = " + this.pos;
     }
 
     public int getDepth() {
-        return grid.length;
+        return this.grid.getDepth();
     }
 
     public int getWidth() {
-        return grid[0].length;
+        return this.grid.getWidth();
     }
 
     public int getHeight(Coord p) throws NoSuchElementException {
-        int x = p.getX();
-        int y = p.getY();
-        if (x < 0 || y < 0 || y >= grid.length | x >= grid[0].length) {
-            throw new NoSuchElementException("invalid grid position");
-        }
-
-        return grid[y][x];
+        return this.grid.getValue(p);
     }
 
     @Override
     public Iterator<Coord3> iterator() {
-        return new StateIterator(this.grid);
+        return this.grid.iterator();
     }
 
     /**
