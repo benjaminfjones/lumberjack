@@ -1,10 +1,11 @@
 package lumberjack;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 
 import lumberjack.Coord;
 import lumberjack.Grid;
@@ -90,7 +91,7 @@ class State implements Iterable<Coord3> {
     }
 
     /**
-     * Return a list of trees in the forest that can be cut down next.
+     * Return a set of trees in the forest that can be cut down next.
      *
      * By definition, these are the trees of minimum height. Note that it may
      * not actually be possible to cut them down due to path finding
@@ -100,9 +101,9 @@ class State implements Iterable<Coord3> {
      * trees. A better approach would be to cache the set of currently
      * choppable trees, refreshing when needed.
      *
-     * @return list of trees that could be cut down next
+     * @return set of trees that could be cut down next
      */
-    public List<Coord> nextTrees() {
+    public Set<Coord> nextTrees() {
         int minHeight = 0;
         for (Coord3 c : this) {
             int h = c.getZ();
@@ -112,16 +113,26 @@ class State implements Iterable<Coord3> {
         }
 
         if (minHeight == 0) {
-            return new ArrayList<>();
+            return new HashSet<>();
         }
 
-        List<Coord> res = new ArrayList<>();
+        return this.getContour(minHeight);
+    }
+
+    /**
+     * Return the set of positions in the forest of a given height.
+     *
+     * For now the implementation traverses the grid every time.
+     *
+     * @return set of grid coordinates having the given height
+     */
+    public Set<Coord> getContour(int height) {
+        Set<Coord> res = new HashSet<>();
         for (Coord3 c : this) {
-            if (c.getZ() == minHeight) {
+            if (c.getZ() == height) {
                 res.add(c.projectXY());
             }
         }
         return res;
     }
-
 }

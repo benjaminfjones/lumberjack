@@ -1,7 +1,8 @@
 package lumberjack;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -16,6 +17,7 @@ public class StateTest {
     private static int[][] grid1 = {{0,1,0}, {0,0,-1}, {3,0,0}};
     private static int[][] grid2 = {{1,2}, {3,0}, {0,-1}};
     private static int[][] grid3 = {{0,-1,0}, {0,0,-1}, {0,0,0}};
+    private static int[][] grid4 = {{1,0,0}, {0,1,0}, {0,0,1}};
 
     @Test
     public void testNewState() {
@@ -63,9 +65,9 @@ public class StateTest {
     @Test
     public void testNextTrees() {
         State s = new State(grid1, new Coord(0, 0));
-        List<Coord> ts = s.nextTrees();
+        Set<Coord> ts = s.nextTrees();
         assertEquals(ts.size(), 1);
-        List<Coord> oracle = new ArrayList<Coord>();
+        Set<Coord> oracle = new HashSet<Coord>();
         oracle.add(new Coord(0, 1));
         assertEquals("ts = " + ts, ts, oracle);
 
@@ -74,5 +76,33 @@ public class StateTest {
         assertTrue(ts.isEmpty());
     }
 
+    @Test
+    public void testGetContour() {
+        // grid 1, trees of height 1
+        State s = new State(grid1, new Coord(0, 0));
+        Set<Coord> ps = s.getContour(1);
+        Set<Coord> oracle = new HashSet<>();
+        oracle.add(new Coord(0, 1));
+        assertEquals(ps, oracle);
 
+        // grid 4, trees of height 1
+        s = new State(grid4, new Coord(0, 0));
+        ps = s.getContour(1);
+        oracle = new HashSet<>();
+        oracle.add(new Coord(0, 0));
+        oracle.add(new Coord(1, 1));
+        oracle.add(new Coord(2, 2));
+        assertEquals(ps, oracle);
+
+        // grid 4, flat spots
+        ps = s.getContour(0);
+        oracle = new HashSet<>();
+        oracle.add(new Coord(0, 1));
+        oracle.add(new Coord(0, 2));
+        oracle.add(new Coord(1, 0));
+        oracle.add(new Coord(1, 2));
+        oracle.add(new Coord(2, 0));
+        oracle.add(new Coord(2, 1));
+        assertEquals(ps, oracle);
+    }
 }
