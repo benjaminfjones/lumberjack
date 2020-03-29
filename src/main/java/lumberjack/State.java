@@ -1,6 +1,13 @@
 package lumberjack;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 import lumberjack.Coord;
+import lumberjack.StateIterator;
 
 
 /**
@@ -11,7 +18,7 @@ import lumberjack.Coord;
  * The current position of the lumberjack is (x,y) where x,y are valid
  * coordinates on the grid.
  */
-class State {
+class State implements Iterable<Coord3> {
 
     // 2d grid of integers
     private int[][] grid;
@@ -21,6 +28,11 @@ class State {
 
     /**
      * Create a new state given a grid and a lumberjack position.
+     *
+     * The "rows" of the grid correspond to depth and the "columns" correspond
+     * to width. When x,y coordinates are used, y measures depth and x
+     * measures width. Thus coordinate (x,y) on the grid has height
+     * `grid[y][x]`.
      *
      * A copy of the grid is made.
      *
@@ -36,11 +48,16 @@ class State {
         this.grid = new int[n][m];
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
+                if (grid[i][j] < -1) {
+                    throw new RuntimeException("invalid grid entry < -1");
+                }
                 this.grid[i][j] = grid[i][j];
             }
         }
 
-        assert(0 <= p.getX() && p.getX() < n && 0 <= p.getY() && p.getY() < m);
+        if (!(0 <= p.getX() && p.getX() < n && 0 <= p.getY() && p.getY() < m)) {
+            throw new IndexOutOfBoundsException("lumberjack position is not on grid");
+        }
         this.pos = p;
     }
 
@@ -68,6 +85,81 @@ class State {
             res += "\n";
         }
 
+        return res;
+    }
+
+    public int getDepth() {
+        return grid.length;
+    }
+
+    public int getWidth() {
+        return grid[0].length;
+    }
+
+    public int getHeight(Coord p) throws NoSuchElementException {
+        int x = p.getX();
+        int y = p.getY();
+        if (x < 0 || y < 0 || y >= grid.length | x >= grid[0].length) {
+            throw new NoSuchElementException("invalid grid position");
+        }
+
+        return grid[y][x];
+    }
+
+    @Override
+    public Iterator<Coord3> iterator() {
+        return new StateIterator(this.grid);
+    }
+
+    /**
+     * Find the shortest path from the lumberjack's position to the given
+     * coordinate and return the length of the path.
+     *
+     * A valid path is a sequence of moves one unit in a cardinal direction on
+     * the grid. Moves must pass over flat ground (height 0) only, no trenches
+     * or trees.
+     *
+     * @param to the destination coordinate
+     * @return minimum distance to the destination, or nothing if there is no
+     * path.
+     */
+    public Optional<Integer> findPath(Coord to) {
+        // unimplemented
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Return a list of trees in the forest that can be cut down next.
+     *
+     * By definition, these are the trees of minimum height. Note that it may
+     * not actually be possible to cut them down due to path finding
+     * constraints (trenches and taller trees).
+     *
+     * For now the implementation traverses the grid every time, collecting
+     * trees. A better approach would be to cache the set of currently
+     * choppable trees, refreshing when needed.
+     *
+     * @return list of trees that could be cut down next
+     */
+    public List<Coord> nextTrees() {
+        int minHeight = 0;
+        for (Coord3 c : this) {
+            int h = c.getZ();
+            if (h > 0 && (minHeight == 0 || h < minHeight)) {
+                minHeight = h;
+            }
+        }
+
+        if (minHeight == 0) {
+            return new ArrayList<>();
+        }
+
+        List<Coord> res = new ArrayList<>();
+        for (Coord3 c : this) {
+            if (c.getZ() == minHeight) {
+                res.add(c.projectXY());
+            }
+        }
         return res;
     }
 
