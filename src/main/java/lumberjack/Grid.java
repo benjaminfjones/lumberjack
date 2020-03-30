@@ -1,6 +1,9 @@
 package lumberjack;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
@@ -115,22 +118,69 @@ class Grid implements Iterable<Coord3> {
         return grid[p.getX()][p.getY()];
     }
 
+    public Coord3 getCoord3(Coord p) throws NoSuchElementException {
+        return new Coord3(p.getX(), p.getY(), this.getValue(p));
+    }
+
     /**
      * Compute the minimum Manhatten distance required to move from `from` to
      * `to`, while avoiding positions that fail the given predicate.
      *
+     * The implementation is Djikstra's algorithm.
+     *
      * @param from starting grid position
      * @param to ending grid position
-     * @param passable predicate indicating whether an arbitrary position is
-     * passable
+     * @param passable predicate indicating whether an arbitrary
+     * position/value (encoded as a Coord3) is passable
      *
      * @return Return the minimum travel distance, or Optional.empty() if
      * there is no path
      */
     public Optional<Integer> minDistance(Coord from, Coord to,
-                                         Predicate<Coord> passable) {
-        // unimplemented
-        return Optional.empty();
+                                         Predicate<Coord3> passable) {
+        // initialize frontier: the set of nodes to explore next
+        Set<Coord> frontier = new HashSet<>();
+        frontier.add(from);
+        // initialize the visited set: to visit a position means to assign
+        // distances to all its neighbors and add it to the visited set
+        Set<Coord> visited = new HashSet<>();
+
+        // Initialize minDist map, the keys represent positions whose distance
+        // has been measured. The values are best known distances to the
+        // position. Note that when a node has been visited, it's neighbors
+        // have their estimated min distances recorded.
+        Map<Coord, Integer> minDist = new HashMap<>();
+        minDist.put(from, 0);
+
+        // While the frontier is non-empty, explore the passable neighbors.
+        // Loop invariant: if x in frontier, then x is not in visited set and
+        // minDist contains an entry for x.
+        while (!frontier.isEmpty()) {
+            Set<Coord> nextFrontier = new HashSet<>();
+            for (Coord c : frontier) {
+                assert(minDist.containsKey(c));
+                assert(!visited.contains(c));
+                int cDist = minDist.get(c);
+                for (Coord n : this.neighbors(c, passable)) {
+                    boolean nbVisited = visited.contains(n);
+                    if (!nbVisited || minDist.get(n) > cDist + 1) {
+                        minDist.put(n, cDist + 1);
+                    }
+                    if (!nbVisited) {
+                        nextFrontier.add(n);
+                    }
+                }
+                visited.add(c);
+            }
+            frontier = nextFrontier;
+        }
+
+        if (minDist.containsKey(to)) {
+            return Optional.of(minDist.get(to));
+        } else {
+            // If we didn't reach `to` along the way, the return Optional.empty()
+            return Optional.empty();
+        }
     }
 
     /**
