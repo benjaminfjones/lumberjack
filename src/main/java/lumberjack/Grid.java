@@ -21,6 +21,10 @@ class Grid implements Iterable<Coord3> {
     // backing array for the grid
     private int[][] grid;
 
+    public Grid(Grid g) {
+        this(g.grid);
+    }
+
     /**
      * Construct a new Grid from a 2d array of ints.
      *
@@ -88,21 +92,38 @@ class Grid implements Iterable<Coord3> {
     }
 
     public String toString() {
+        return this.annotateGrid(new Coord(0, 0), "");
+    }
+
+    /**
+     * Format a grid into a multiline string, including a mark at the given
+     * location.
+     *
+     * If mark == "", just format the grid as is.
+     */
+    public String annotateGrid(Coord c, String mark) {
         int maxWidth = 0;
-        for (int i = 0; i < this.grid.length; i++) {
-            for (int j = 0; j < this.grid[0].length; j++) {
-                int entryWidth = String.format("%d", this.grid[i][j]).length();
+        for (int i = 0; i < this.getDepth(); i++) {
+            for (int j = 0; j < this.getWidth(); j++) {
+                Coord p = new Coord(i, j);
+                int entryWidth = String.format("%d", this.getValue(p)).length();
                 if (entryWidth > maxWidth) {
                     maxWidth = entryWidth;
                 }
             }
         }
+        maxWidth = Math.max(maxWidth, mark.length());
         assert(maxWidth > 0);
 
         String res = "";
-        for (int i = 0; i < this.grid.length; i++) {
-            for (int j = 0; j < this.grid[0].length; j++) {
-                res += String.format(" %" + maxWidth + "d", this.grid[i][j]);
+        for (int i = 0; i < this.getDepth(); i++) {
+            for (int j = 0; j < this.getWidth(); j++) {
+                if (mark.length() > 0 && c.getX() == i && c.getY() == j) {
+                    res += String.format(" %" + maxWidth + "s", mark);
+                } else {
+                    Coord p = new Coord(i, j);
+                    res += String.format(" %" + maxWidth + "d", this.getValue(p));
+                }
             }
             res += "\n";
         }
@@ -116,6 +137,14 @@ class Grid implements Iterable<Coord3> {
         }
 
         return grid[p.getX()][p.getY()];
+    }
+
+    public void setValue(Coord p, int v) {
+        if (!this.onGrid(p)) {
+            throw new NoSuchElementException("invalid grid position");
+        }
+
+        this.grid[p.getX()][p.getY()] = v;
     }
 
     public Coord3 getCoord3(Coord p) throws NoSuchElementException {

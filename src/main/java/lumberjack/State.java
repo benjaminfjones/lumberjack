@@ -6,18 +6,22 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import lumberjack.Coord;
+import lumberjack.Coord3;
 import lumberjack.Grid;
 
 
 /**
- * Models the state of the lumberjacks forest.
+ * Models the state of the lumberjack's forest.
  *
  * The forest is represented by a 2d grid of integers. Flat spots are 0,
- * impassable trenches are -1, and trees of height n greater than 0 are `n`.
- * The current position of the lumberjack is (x,y) where x,y are valid
- * coordinates on the grid.
+ * impassable trenches are -1, and trees of height {@code n > 0} are {@code n}.
+ * The current position of the lumberjack is (x,y) where x, y are valid
+ * coordinates on the grid and represent rows, columns, respectively.
  */
 class State implements Iterable<Coord3> {
 
@@ -32,10 +36,10 @@ class State implements Iterable<Coord3> {
      *
      * The "rows" of the grid correspond to depth and the "columns" correspond
      * to width. When x,y coordinates are used, x measures depth and y
-     * measures width. Thus coordinate (x,y) on the grid has height
+     * measures width. Thus coordinate (x, y) on the grid has height
      * `grid[x][y]`.
      *
-     * A copy of the grid is made.
+     * A copy of the grid and of p are made.
      *
      * @param grid an initial grid
      * @param p position of the lumberjack (checked to be on the grid)
@@ -51,9 +55,26 @@ class State implements Iterable<Coord3> {
         this.pos = p;
     }
 
+    /**
+     * A semi-(copy constructor).
+     *
+     * Both arguments are copied.
+     */
+    public State(Grid grid, Coord p) {
+        this.grid = new Grid(grid);
+        this.pos = new Coord(p);
+    }
+
+    /**
+     * Copy constructor
+     */
+    public State(State state) {
+        this(state.grid, state.pos);
+    }
+
     @Override
     public String toString() {
-        return this.grid.toString() + "pos = " + this.pos;
+        return this.grid.annotateGrid(this.pos, "X");
     }
 
     public int getDepth() {
@@ -79,15 +100,36 @@ class State implements Iterable<Coord3> {
      *
      * A valid path is a sequence of moves one unit in a cardinal direction on
      * the grid. Moves must pass over flat ground (height 0) only, no trenches
-     * or trees.
+     * or trees with the exception of the final position where a tree (to be
+     * cut down) is allowed to exist.
      *
      * @param to the destination coordinate
      * @return minimum distance to the destination, or nothing if there is no
      * path.
      */
     public Optional<Integer> findPath(Coord to) {
-        // unimplemented
-        throw new UnsupportedOperationException();
+        Predicate<Coord3> passable = c3 -> {
+            return c3.getZ() == 0 || c3.projectXY().equals(to);
+        };
+
+        return this.grid.minDistance(this.pos, to, passable);
+    }
+
+    /**
+     * Return the set of positions in the forest of a given height.
+     *
+     * For now the implementation traverses the grid every time.
+     *
+     * @return set of grid coordinates having the given height
+     */
+    public Set<Coord> getContour(int height) {
+        Set<Coord> res = new HashSet<>();
+        for (Coord3 c : this) {
+            if (c.getZ() == height) {
+                res.add(c.projectXY());
+            }
+        }
+        return res;
     }
 
     /**
@@ -120,19 +162,62 @@ class State implements Iterable<Coord3> {
     }
 
     /**
-     * Return the set of positions in the forest of a given height.
+     * Modify the current state so that the tree at coordinate `p` has been
+     * chopped down and the lumberjack's position is `p`.
      *
-     * For now the implementation traverses the grid every time.
-     *
-     * @return set of grid coordinates having the given height
+     * Fluent style.
+     * Assume that there is in fact a tree at `p`.
      */
-    public Set<Coord> getContour(int height) {
-        Set<Coord> res = new HashSet<>();
-        for (Coord3 c : this) {
-            if (c.getZ() == height) {
-                res.add(c.projectXY());
+    public State chop(Coord p) throws IndexOutOfBoundsException {
+        this.grid.setValue(p, 0);
+        this.pos = new Coord(p);
+        return this;
+    }
+
+    /**
+     * Return a set of states which are reachable from the current state via
+     * movement and a single tree chop.
+     *
+     * The returned state do not share memory with the current state.
+     */
+    public Set<StateJump> nextStates() {
+        Set<Coord> nextTrees = this.nextTrees();
+        Set<StateJump> res = new HashSet<>();
+        for (Coord t : nextTrees) {
+            Optional<Integer> d = this.findPath(t);
+            if (d.isPresent()) {
+                State newState = new State(this).chop(t);
+                res.add(new StateJump(newState, d.get()));
             }
         }
         return res;
+        // Stream<StateJump> s = nextTrees.stream()
+        //         .map(t -> {
+        //             Optional<Integer> d = this.findPath(t);
+        //             if (d.isPresent()) {
+        //                 State newState = new State(this).chop(t);
+        //                 return Optional.of(new StateJump(newState, d.get()));
+        //             }
+        //             return Optional.empty();
+        //         })
+        //         .filter(Optional::isPresent)
+        //         .map(Optional::get);
+        // return s.collect(Collectors.toSet());
+    }
+
+}
+
+
+/**
+ * Holds a pair of a state and a distance required to get there from some
+ * unspecified starting point.
+ */
+class StateJump {
+    public State state;
+    public int dist;
+
+    public StateJump(State state, int dist) {
+        this.state = state;
+        this.dist = dist;
     }
 }

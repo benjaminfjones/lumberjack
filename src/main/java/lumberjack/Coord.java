@@ -11,6 +11,10 @@ class Coord {
     private int x;
     private int y;
 
+    public Coord(Coord c) {
+        this(c.x, c.y);
+    }
+
     public Coord(int x, int y) {
         this.x = x;
         this.y = y;
