@@ -15,3 +15,6 @@ gradle-app.setting
 
 # Ignore Gradle build output directory
 build
+
+# ignore root level checkstyle files and links
+/checkstyle.xml

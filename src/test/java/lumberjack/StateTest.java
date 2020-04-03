@@ -1,17 +1,17 @@
 package lumberjack;
 
-import static org.junit.Assert.*;
-// import static org.junit.Assert.assertEqual;
-// import static org.junit.Assert.assertThrows;
-// import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import org.junit.Test;
-
+//
 import lumberjack.Coord;
 import lumberjack.State;
+//
+import org.junit.Test;
 
 
 public class StateTest {

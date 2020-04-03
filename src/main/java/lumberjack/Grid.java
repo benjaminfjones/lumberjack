@@ -9,12 +9,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
+//
 import lumberjack.Coord3;
 
 
 /**
- * A 2d grid of integers
+ * A 2d grid of integers.
  */
 class Grid implements Iterable<Coord3> {
 
@@ -34,7 +34,9 @@ class Grid implements Iterable<Coord3> {
      * @param grid input array
      */
     public Grid(int[][] grid) {
-        this(grid, h -> { return true; });
+        this(grid, h -> {
+            return true;
+        });
     }
 
     /**
@@ -48,9 +50,9 @@ class Grid implements Iterable<Coord3> {
      */
     public Grid(int[][] grid, Predicate<Integer> p) {
         int n = grid.length;
-        assert(n > 0);
+        assert n > 0;
         int m = grid[0].length;
-        assert(m > 0);
+        assert m > 0;
 
         this.grid = new int[n][m];
         for (int i = 0; i < n; i++) {
@@ -83,8 +85,9 @@ class Grid implements Iterable<Coord3> {
      * Note: the X-dimension corresponds to rows, the Y to columns.
      */
     public boolean onGrid(Coord p) {
-        return 0 <= p.getX() && p.getX() < this.getDepth() &&
-               0 <= p.getY() && p.getY() < this.getWidth();
+        return (
+            0 <= p.getX() && p.getX() < this.getDepth()
+            && 0 <= p.getY() && p.getY() < this.getWidth());
     }
 
     public Predicate<Coord> onGridPredicate() {
@@ -113,7 +116,7 @@ class Grid implements Iterable<Coord3> {
             }
         }
         maxWidth = Math.max(maxWidth, mark.length());
-        assert(maxWidth > 0);
+        assert maxWidth > 0;
 
         String res = "";
         for (int i = 0; i < this.getDepth(); i++) {
@@ -160,10 +163,10 @@ class Grid implements Iterable<Coord3> {
      * @param from starting grid position
      * @param to ending grid position
      * @param passable predicate indicating whether an arbitrary
-     * position/value (encoded as a Coord3) is passable
+     *     position/value (encoded as a Coord3) is passable
      *
      * @return Return the minimum travel distance, or Optional.empty() if
-     * there is no path
+     *     there is no path
      */
     public Optional<Integer> minDistance(Coord from, Coord to,
                                          Predicate<Coord3> passable) {
@@ -187,13 +190,13 @@ class Grid implements Iterable<Coord3> {
         while (!frontier.isEmpty()) {
             Set<Coord> nextFrontier = new HashSet<>();
             for (Coord c : frontier) {
-                assert(minDist.containsKey(c));
-                assert(!visited.contains(c));
-                int cDist = minDist.get(c);
+                assert minDist.containsKey(c);
+                assert !visited.contains(c);
+                int coordDist = minDist.get(c);
                 for (Coord n : this.neighbors(c, passable)) {
                     boolean nbVisited = visited.contains(n);
-                    if (!nbVisited || minDist.get(n) > cDist + 1) {
-                        minDist.put(n, cDist + 1);
+                    if (!nbVisited || minDist.get(n) > coordDist + 1) {
+                        minDist.put(n, coordDist + 1);
                     }
                     if (!nbVisited) {
                         nextFrontier.add(n);
@@ -218,12 +221,12 @@ class Grid implements Iterable<Coord3> {
      *
      * @param p given position
      * @param passable predicate indicating whether an arbitrary
-     * position/value (encoded as a Coord3) is passable
+     *     position/value (encoded as a Coord3) is passable
      */
     public Set<Coord> neighbors(Coord p, Predicate<Coord3> passable) {
         Predicate<Coord> passableClosure = c -> {
-            Coord3 cWithValue = new Coord3(c.getX(), c.getY(), this.getValue(c));
-            return passable.test(cWithValue);
+            Coord3 coordWithValue = new Coord3(c.getX(), c.getY(), this.getValue(c));
+            return passable.test(coordWithValue);
         };
         return p.cardinalNeighbors()
             .stream()

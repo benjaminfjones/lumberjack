@@ -1,18 +1,21 @@
 package lumberjack;
 
-import java.util.Arrays;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-
+//
+import lumberjack.Coord;
+//
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-
-import lumberjack.Coord;
 
 
 public class GridTest {
@@ -22,6 +25,9 @@ public class GridTest {
     private static int[][] grid3 = {{0, 0, 0, 0, 0}, {0, 2, -1, 1, 0}};
     private static List<Grid> allGrids;
 
+    /**
+     * Setup unit tests by creating Grids from all raw grids.
+     */
     @Before
     public void setup() {
         List<int[][]> allRawGrids = Arrays.asList(
@@ -73,27 +79,37 @@ public class GridTest {
 
         // with no passable constraint, we should get 2 neighbors, one a row
         // down and the other a column over
-        Set<Coord> nbs = g.neighbors(p0, c3 -> { return true; });
+        Set<Coord> nbs = g.neighbors(p0, c3 -> {
+            return true;
+        });
         assertEquals(nbs, new HashSet<Coord>(Arrays.asList(
             new Coord(0,1),
             new Coord(1,0)
         )));
 
         // rule out flat spots as neighbors, result should be a single coord
-        nbs = g.neighbors(p0, c3 -> { return c3.getZ() != 0; });
+        nbs = g.neighbors(p0, c3 -> {
+            return c3.getZ() != 0;
+        });
         assertEquals(nbs, new HashSet<Coord>(Arrays.asList(new Coord(0,1))));
 
         // rule out all positions with value < 2, result should empty
-        nbs = g.neighbors(p0, c3 -> { return c3.getZ() >= 2; });
+        nbs = g.neighbors(p0, c3 -> {
+            return c3.getZ() >= 2;
+        });
         assertTrue(nbs.isEmpty());
 
         // check all four cardinal neighbors of the center of the 3x3 grid
         Coord p1 = new Coord(1, 1);
-        nbs = g.neighbors(p1, c3 -> { return true; });
+        nbs = g.neighbors(p1, c3 -> {
+            return true;
+        });
         assertEquals("nbs = " + nbs, nbs.size(), 4);
 
         // exclude single neighbor of value -1
-        nbs = g.neighbors(p1, c3 -> { return c3.getZ() >= 0; });
+        nbs = g.neighbors(p1, c3 -> {
+            return c3.getZ() >= 0;
+        });
         assertEquals("nbs = " + nbs, nbs.size(), 3);
     }
 

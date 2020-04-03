@@ -6,13 +6,14 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
+import java.util.stream.Stream;
+//
 import lumberjack.Coord;
 import lumberjack.Coord3;
 import lumberjack.Grid;
+import lumberjack.StateJump;
 
 
 /**
@@ -47,7 +48,9 @@ class State implements Iterable<Coord3> {
     public State(int[][] grid, Coord p) {
 
         // validate that grid entries have height >= -1
-        this.grid = new Grid(grid, h -> { return h >= -1; });
+        this.grid = new Grid(grid, h -> {
+            return h >= -1;
+        });
 
         if (!this.grid.onGrid(p)) {
             throw new IndexOutOfBoundsException("lumberjack position is not on grid");
@@ -66,7 +69,7 @@ class State implements Iterable<Coord3> {
     }
 
     /**
-     * Copy constructor
+     * Copy constructor.
      */
     public State(State state) {
         this(state.grid, state.pos);
@@ -105,7 +108,7 @@ class State implements Iterable<Coord3> {
      *
      * @param to the destination coordinate
      * @return minimum distance to the destination, or nothing if there is no
-     * path.
+     *     path.
      */
     public Optional<Integer> findPath(Coord to) {
         Predicate<Coord3> passable = c3 -> {
@@ -205,19 +208,4 @@ class State implements Iterable<Coord3> {
         // return s.collect(Collectors.toSet());
     }
 
-}
-
-
-/**
- * Holds a pair of a state and a distance required to get there from some
- * unspecified starting point.
- */
-class StateJump {
-    public State state;
-    public int dist;
-
-    public StateJump(State state, int dist) {
-        this.state = state;
-        this.dist = dist;
-    }
 }
