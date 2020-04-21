@@ -2,6 +2,8 @@ package lumberjack;
 
 /**
  * Represents 3d grid location.
+ *
+ * This class is designed to be immutable.
  */
 class Coord3 {
     private int x;
@@ -31,9 +33,9 @@ class Coord3 {
     public int hashCode() {
         int h = this.projectXY().hashCode();
         if (h >= this.z) {
-            return h*h + h + z;
+            return h * h + h + z;
         } else {
-            return h + z*z;
+            return h + z * z;
         }
     }
 
