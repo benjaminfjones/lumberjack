@@ -94,8 +94,40 @@ class Grid implements Iterable<Coord3> {
         return this::onGrid;
     }
 
+    @Override
     public String toString() {
         return this.annotateGrid(new Coord(0, 0), "");
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof Grid)) {
+            return false;
+        }
+        Grid otherGrid = (Grid) other;
+        if (this.getDepth() != otherGrid.getDepth()
+            || this.getWidth() != otherGrid.getWidth()) {
+            return false;
+        }
+        for (int i = 0; i < this.grid.length; i++) {
+            for (int j = 0; j < this.grid[0].length; j++) {
+                if (this.grid[i][j] != otherGrid.grid[i][j]) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 0;
+        for (int i = 0; i < this.grid.length; i++) {
+            for (int j = 0; j < this.grid[0].length; j++) {
+                result = (result << 5) - result + this.grid[i][j];
+            }
+        }
+        return result;
     }
 
     /**
