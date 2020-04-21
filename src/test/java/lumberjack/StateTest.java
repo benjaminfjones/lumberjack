@@ -1,6 +1,7 @@
 package lumberjack;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -57,6 +58,19 @@ public class StateTest {
 
         s = new State(grid2, new Coord(1,1));
         System.out.println(s.toString());
+    }
+
+    @Test
+    public void testEqualsAndHash() {
+        State s1 = new State(grid1, new Coord(0,0));
+        State s2 = new State(grid1, new Coord(0,1));
+        assertFalse(s1.equals(s2));
+        State s3 = new State(grid2, new Coord(0,0));
+        assertFalse(s1.equals(s3));
+        assertFalse(s2.equals(s3));
+        State s4 = new State(grid1, new Coord(0,0));
+        assertTrue(s1.equals(s4));
+        assertTrue(s1.hashCode() == s4.hashCode());
     }
 
     @Test
@@ -191,9 +205,9 @@ public class StateTest {
         nextStates = s.nextStates();
         assertEquals(0, nextStates.size());
 
-        // {0,1,2},
-        // {7,10,3},
-        // {6,5,4}
+        // {0,  1, 2},
+        // {7, 10, 3},
+        // {6,  5, 4}
         // explore the unique next steps as we spiral around the grid
         s = new State(grid5, new Coord(0, 0));
         nextStates = s.nextStates();
