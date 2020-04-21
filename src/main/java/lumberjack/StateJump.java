@@ -14,4 +14,9 @@ class StateJump {
         this.state = state;
         this.dist = dist;
     }
+
+    public StateJump(StateJump copy) {
+        this.state = new State(copy.state);
+        this.dist = copy.dist;
+    }
 }
