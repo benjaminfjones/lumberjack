@@ -75,9 +75,30 @@ class State implements Iterable<Coord3> {
         this(state.grid, state.pos);
     }
 
+    /**
+     * Return the position.
+     */
+    public Coord getPos() {
+        return pos;
+    }
+
     @Override
     public String toString() {
         return this.grid.annotateGrid(this.pos, "X");
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof State)) {
+            return false;
+        }
+        State otherState = (State) other;
+        return this.grid.equals(otherState.grid) && this.pos.equals(otherState.pos);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * this.grid.hashCode() + this.pos.hashCode();
     }
 
     public int getDepth() {
@@ -95,6 +116,18 @@ class State implements Iterable<Coord3> {
     @Override
     public Iterator<Coord3> iterator() {
         return this.grid.iterator();
+    }
+
+    /**
+     * Return true if there are trees in the forest.
+     */
+    public boolean hasTrees() {
+        for (Coord3 c3 : this) {
+            if (c3.getZ() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
