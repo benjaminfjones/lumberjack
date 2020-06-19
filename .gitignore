@@ -18,3 +18,9 @@ build
 
 # ignore root level checkstyle files and links
 /checkstyle.xml
+
+# VS Code
+.classpath
+.project
+.settings/
+bin/

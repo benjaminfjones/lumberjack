@@ -1,7 +1,5 @@
 package lumberjack;
 
-import lumberjack.State;
-
 /**
  * Holds a pair of a state and a distance required to get there from some
  * unspecified starting point.
