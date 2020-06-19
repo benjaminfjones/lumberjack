@@ -1,19 +1,13 @@
 package lumberjack;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-//
-import lumberjack.Path;
-import lumberjack.State;
-import lumberjack.StateJump;
 
 class Solver {
 

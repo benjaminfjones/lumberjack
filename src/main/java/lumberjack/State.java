@@ -1,20 +1,11 @@
 package lumberjack;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-//
-import lumberjack.Coord;
-import lumberjack.Coord3;
-import lumberjack.Grid;
-import lumberjack.StateJump;
-
 
 /**
  * Models the state of the lumberjack's forest.
@@ -227,18 +218,6 @@ class State implements Iterable<Coord3> {
             }
         }
         return res;
-        // Stream<StateJump> s = nextTrees.stream()
-        //         .map(t -> {
-        //             Optional<Integer> d = this.findPath(t);
-        //             if (d.isPresent()) {
-        //                 State newState = new State(this).chop(t);
-        //                 return Optional.of(new StateJump(newState, d.get()));
-        //             }
-        //             return Optional.empty();
-        //         })
-        //         .filter(Optional::isPresent)
-        //         .map(Optional::get);
-        // return s.collect(Collectors.toSet());
     }
 
 }

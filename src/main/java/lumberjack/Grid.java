@@ -9,9 +9,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-//
-import lumberjack.Coord3;
-
 
 /**
  * A 2d grid of integers.

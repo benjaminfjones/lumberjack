@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-//
-import lumberjack.StateJump;
 
 class Path implements Iterable<StateJump> {
 

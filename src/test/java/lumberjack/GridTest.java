@@ -12,8 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 //
-import lumberjack.Coord;
-//
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,7 +52,7 @@ public class GridTest {
 
         // check that entry value validation works
         assertThrows(RuntimeException.class, () -> {
-            Grid bad = new Grid(grid1, h -> {
+            new Grid(grid1, h -> {
                 return h > 0;
             });
         });

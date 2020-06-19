@@ -5,12 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-//
-import lumberjack.Coord;
-import lumberjack.State;
 //
 import org.junit.Test;
 
@@ -76,14 +72,14 @@ public class StateTest {
     @Test
     public void testBadNewState() {
         assertThrows(RuntimeException.class, () -> {
-            State s = new State(badGrid1, new Coord(0,0));
+            new State(badGrid1, new Coord(0,0));
         });
     }
 
     @Test
     public void testBadCoord() {
         assertThrows(IndexOutOfBoundsException.class, () -> {
-            State s = new State(grid1, new Coord(-2,-2));
+            new State(grid1, new Coord(-2,-2));
         });
     }
 
